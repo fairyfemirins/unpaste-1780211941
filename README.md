@@ -39,5 +39,5 @@ python3 unpaste.py toggle
 - **Configuration File**: Allow users to customize hotkeys and exceptions.
 - **Auto-Start**: Add support for auto-starting with the OS.
 
-## License
-MIT
+## Note
+This repository was published under `fairyfemirins` due to GitHub namespace restrictions. A transfer to `femirins` is pending.

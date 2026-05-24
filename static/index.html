@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>unpaste - Unformat Text Before Paste</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .demo {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>unpaste</h1>
+    <p>A tool to paste unformatted text by default.</p>
+
+    <div class="demo">
+        <h2>Demo</h2>
+        <p>Copy formatted text (e.g., from Word or a website) and click the button below to simulate pasting unformatted text.</p>
+        
+        <div class="status">Status: <span id="status">Ready</span></div>
+        
+        <textarea id="clipboard" placeholder="Paste formatted text here to see the unformatted result..."></textarea>
+        
+        <button onclick="unpaste()">Simulate Unformatted Paste (Ctrl+V)</button>
+        
+        <h3>Result:</h3>
+        <div id="result" style="border: 1px solid #ddd; padding: 10px; min-height: 50px;"></div>
+    </div>
+
+    <script>
+        function unpaste() {
+            const clipboardText = document.getElementById('clipboard').value;
+            if (!clipboardText) {
+                document.getElementById('status').textContent = "Error: Clipboard is empty";
+                return;
+            }
+            
+            document.getElementById('status').textContent = "Processing...";
+            
+            // Simulate unformatting (remove rich text formatting)
+            const unformattedText = clipboardText.replace(/\n/g, " ").trim();
+            
+            document.getElementById('result').textContent = unformattedText;
+            document.getElementById('status').textContent = "Done";
+        }
+        
+        // Listen for Ctrl+V
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'v') {
+                event.preventDefault();
+                unpaste();
+            }
+        });
+    </script>
+</body>
+</html>

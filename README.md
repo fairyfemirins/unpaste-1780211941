@@ -1,36 +1,52 @@
-# UnPaste: Autonomous Clipboard Unformatter
+# Unpaste
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-**UnPaste** is a background app that **intercepts Ctrl+V** and strips formatting **before** pasting. Inspired by [this r/SomebodyMakeThis post](https://www.reddit.com/r/SomebodyMakeThis/comments/bnnw3/).
+**Unpaste** is a cross-platform CLI tool to strip formatting from clipboard text. It solves the common problem of pasting formatted text (e.g., from Office apps) into plaintext editors (e.g., Notepad, Markdown, terminals).
 
 ## Features
-- Runs in background (system tray).
-- Intercepts Ctrl+V and strips HTML/XML/rich formatting.
-- Cross-platform (Linux/Windows/macOS).
-- Minimal dependencies (`pyperclip`, `keyboard`).
+- **Cross-Platform**: Works on Linux, macOS, and Windows.
+- **Minimal Dependencies**: Uses `xclip`/`xsel` (Linux), `pbcopy`/`pbpaste` (macOS), or PowerShell (Windows).
+- **Autonomous**: No GUI or manual intervention required.
 
 ## Installation
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install pyperclip keyboard
+# Clone the repo
+git clone https://github.com/Femirins/unpaste.git
+cd unpaste
+
+# Make executable
+chmod +x unpaste.py
 ```
 
 ## Usage
 ```bash
-python3 unpaste.py
+# Output unformatted text to stdout
+./unpaste.py
+
+# Copy unformatted text back to clipboard
+./unpaste.py --copy
+
+# Read from stdin (for testing or piping)
+./unpaste.py --stdin < input.txt
 ```
-- Press `Ctrl+C` to exit.
+
+## Examples
+1. **Paste from Office to Markdown**:
+   ```bash
+   ./unpaste.py > notes.md
+   ```
+
+2. **Pipe from `curl`**:
+   ```bash
+   curl -s "https://example.com/formatted-text" | ./unpaste.py --stdin
+   ```
 
 ## Technical Architecture
-- **Clipboard Monitoring**: `pyperclip` + `keyboard` hotkey.
-- **Formatting Detection**: Regex for HTML/XML tags and whitespace.
-- **System Tray**: `tkinter` + `PIL` (fallback to console if GUI unavailable).
-
-## Limitations
-- Requires GUI environment (X11/Wayland) for clipboard access.
-- Tested on Linux; Windows/macOS may need adjustments.
+- **Input**: Clipboard (default) or stdin (`--stdin`).
+- **Output**: Plaintext to stdout or clipboard (`--copy`).
+- **Dependencies**:
+  - Linux: `xclip` or `xsel`
+  - macOS: `pbcopy`/`pbpaste`
+  - Windows: PowerShell
 
 ## License
 MIT

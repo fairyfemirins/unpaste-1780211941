@@ -1,98 +1,134 @@
 #!/usr/bin/env python3
 """
-UnPaste: Autonomous clipboard unformatter.
-
-Features:
-- Runs in background (system tray).
-- Intercepts Ctrl+V and strips formatting.
-- Cross-platform (Linux/Windows/macOS).
-- Minimal dependencies.
+Unpaste: A cross-platform CLI tool to strip formatting from clipboard text.
 
 Usage:
-  python3 unpaste.py
+  unpaste          # Output unformatted text to stdout
+  unpaste --copy   # Copy unformatted text back to clipboard
+  unpaste --help   # Show this help message
+
+Supported Platforms:
+  - Linux (requires xclip or xsel)
+  - macOS (requires pbcopy/pbpaste)
+  - Windows (via PowerShell)
 """
 
-import re
-import pyperclip
-import keyboard
-import threading
 import sys
-from tkinter import Tk, Menu, PhotoImage
-from PIL import Image, ImageTk
+import subprocess
+import argparse
 
-class UnPaste:
-    def __init__(self):
-        self.tray_icon = None
-        self.running = False
-        self.root = Tk()
-        self.root.withdraw()  # Hide main window
-        self.setup_tray()
-        self.start_monitoring()
 
-    def setup_tray(self):
-        """Create system tray icon."""
-        try:
-            image = Image.open(self._get_icon_path())
-            icon = ImageTk.PhotoImage(image)
-            menu = Menu(self.root, tearoff=0)
-            menu.add_command(label="Exit", command=self.stop)
-            self.tray_icon = self.root.tk.call(
-                'tk', 'windowingsystem') == 'x11' and 'tray' or 'systray',
-                'create', icon, "UnPaste", menu
+def get_clipboard():
+    """Get clipboard content as plain text."""
+    try:
+        # Linux (xclip or xsel)
+        if sys.platform == "linux":
+            for cmd in ["xclip", "xsel"]:
+                try:
+                    return subprocess.check_output(
+                        [cmd, "-o", "-selection", "clipboard"], 
+                        stderr=subprocess.DEVNULL, 
+                        text=True
+                    ).strip()
+                except FileNotFoundError:
+                    continue
+            raise RuntimeError("Neither xclip nor xsel found. Install one of them.")
+        
+        # macOS
+        elif sys.platform == "darwin":
+            return subprocess.check_output(
+                ["pbpaste"], 
+                stderr=subprocess.DEVNULL, 
+                text=True
+            ).strip()
+        
+        # Windows
+        elif sys.platform == "win32":
+            return subprocess.check_output(
+                ["powershell", "-command", "Get-Clipboard"], 
+                stderr=subprocess.DEVNULL, 
+                text=True
+            ).strip()
+        
+        else:
+            raise RuntimeError("Unsupported platform.")
+    
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Failed to read clipboard: {e}")
+
+
+def set_clipboard(text):
+    """Set clipboard content to plain text."""
+    try:
+        # Linux (xclip or xsel)
+        if sys.platform == "linux":
+            for cmd in ["xclip", "xsel"]:
+                try:
+                    subprocess.run(
+                        [cmd, "-i", "-selection", "clipboard"], 
+                        input=text, 
+                        text=True, 
+                        check=True
+                    )
+                    return
+                except FileNotFoundError:
+                    continue
+            raise RuntimeError("Neither xclip nor xsel found. Install one of them.")
+        
+        # macOS
+        elif sys.platform == "darwin":
+            subprocess.run(
+                ["pbcopy"], 
+                input=text, 
+                text=True, 
+                check=True
             )
-        except Exception as e:
-            print(f"Tray icon failed: {e}")
+        
+        # Windows
+        elif sys.platform == "win32":
+            subprocess.run(
+                ["powershell", "-command", "Set-Clipboard", "-Value", text], 
+                input=text, 
+                text=True, 
+                check=True
+            )
+        
+        else:
+            raise RuntimeError("Unsupported platform.")
+    
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Failed to write clipboard: {e}")
 
-    def _get_icon_path(self):
-        """Return platform-specific icon path."""
-        return "assets/icon.png"
 
-    def start_monitoring(self):
-        """Start clipboard monitoring thread."""
-        self.running = True
-        threading.Thread(target=self._monitor_clipboard, daemon=True).start()
-        keyboard.add_hotkey('ctrl+v', self._unformat_paste)
+def main():
+    parser = argparse.ArgumentParser(description="Unpaste: Strip formatting from clipboard text.")
+    parser.add_argument(
+        "--copy", 
+        action="store_true", 
+        help="Copy unformatted text back to clipboard"
+    )
+    parser.add_argument(
+        "--stdin", 
+        action="store_true", 
+        help="Read from stdin instead of clipboard"
+    )
+    args = parser.parse_args()
+    
+    try:
+        if args.stdin:
+            text = sys.stdin.read().strip()
+        else:
+            text = get_clipboard()
+        
+        if args.copy:
+            set_clipboard(text)
+            print("Unformatted text copied to clipboard.")
+        else:
+            print(text)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    def _monitor_clipboard(self):
-        """Monitor clipboard for changes (fallback)."""
-        last_value = ""
-        while self.running:
-            try:
-                current_value = pyperclip.paste()
-                if current_value != last_value:
-                    last_value = current_value
-                    if self._is_formatted(current_value):
-                        pyperclip.copy(self._strip_formatting(current_value))
-            except Exception as e:
-                print(f"Clipboard error: {e}")
-            threading.Event().wait(0.5)
-
-    def _is_formatted(self, text):
-        """Check if text contains HTML/XML tags or rich formatting."""
-        return bool(re.search(r'<[^>]+>|\n{2,}|\t', text))
-
-    def _strip_formatting(self, text):
-        """Strip HTML/XML tags and normalize whitespace."""
-        text = re.sub(r'<[^>]+>', '', text)  # Remove HTML/XML
-        text = re.sub(r'\s+', ' ', text).strip()  # Normalize whitespace
-        return text
-
-    def _unformat_paste(self):
-        """Intercept Ctrl+V and paste unformatted text."""
-        try:
-            clipboard_text = pyperclip.paste()
-            if self._is_formatted(clipboard_text):
-                unformatted = self._strip_formatting(clipboard_text)
-                keyboard.write(unformatted)
-        except Exception as e:
-            print(f"Paste error: {e}")
-
-    def stop(self):
-        """Stop monitoring and exit."""
-        self.running = False
-        keyboard.unhook_all()
-        self.root.quit()
-        sys.exit(0)
 
 if __name__ == "__main__":
-    UnPaste().root.mainloop()
+    main()

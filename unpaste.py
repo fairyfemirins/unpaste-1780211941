@@ -1,133 +1,76 @@
 #!/usr/bin/env python3
 """
-Unpaste: A cross-platform CLI tool to strip formatting from clipboard text.
-
+Unpaste: A cross-platform CLI tool to strip formatting from clipboard text on paste.
 Usage:
-  unpaste          # Output unformatted text to stdout
-  unpaste --copy   # Copy unformatted text back to clipboard
-  unpaste --help   # Show this help message
-
-Supported Platforms:
-  - Linux (requires xclip or xsel)
-  - macOS (requires pbcopy/pbpaste)
-  - Windows (via PowerShell)
+  python3 unpaste.py --start  # Start monitoring clipboard
+  python3 unpaste.py --stop   # Stop monitoring
 """
 
-import sys
-import subprocess
+import pyperclip
+import pynput.keyboard
 import argparse
+import threading
+import sys
+import time
 
+class Unpaste:
+    def __init__(self):
+        self.monitor_active = False
+        self.listener = None
+        self.hotkey = {pynput.keyboard.Key.ctrl, pynput.keyboard.KeyCode.from_char('v')}
+        self.current_keys = set()
 
-def get_clipboard():
-    """Get clipboard content as plain text."""
-    try:
-        # Linux (xclip or xsel)
-        if sys.platform == "linux":
-            for cmd in ["xclip", "xsel"]:
-                try:
-                    return subprocess.check_output(
-                        [cmd, "-o", "-selection", "clipboard"], 
-                        stderr=subprocess.DEVNULL, 
-                        text=True
-                    ).strip()
-                except FileNotFoundError:
-                    continue
-            raise RuntimeError("Neither xclip nor xsel found. Install one of them.")
-        
-        # macOS
-        elif sys.platform == "darwin":
-            return subprocess.check_output(
-                ["pbpaste"], 
-                stderr=subprocess.DEVNULL, 
-                text=True
-            ).strip()
-        
-        # Windows
-        elif sys.platform == "win32":
-            return subprocess.check_output(
-                ["powershell", "-command", "Get-Clipboard"], 
-                stderr=subprocess.DEVNULL, 
-                text=True
-            ).strip()
-        
-        else:
-            raise RuntimeError("Unsupported platform.")
-    
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Failed to read clipboard: {e}")
+    def strip_formatting(self, text):
+        """Strip formatting from text (placeholder for platform-specific logic)."""
+        return text  # pyperclip handles plaintext paste
 
+    def on_press(self, key):
+        if key in self.hotkey:
+            self.current_keys.add(key)
+            if all(k in self.current_keys for k in self.hotkey):
+                # Simulate a small delay to avoid race conditions
+                time.sleep(0.1)
+                clipboard_content = pyperclip.paste()
+                if clipboard_content:
+                    plain_text = self.strip_formatting(clipboard_content)
+                    pyperclip.copy(plain_text)
 
-def set_clipboard(text):
-    """Set clipboard content to plain text."""
-    try:
-        # Linux (xclip or xsel)
-        if sys.platform == "linux":
-            for cmd in ["xclip", "xsel"]:
-                try:
-                    subprocess.run(
-                        [cmd, "-i", "-selection", "clipboard"], 
-                        input=text, 
-                        text=True, 
-                        check=True
-                    )
-                    return
-                except FileNotFoundError:
-                    continue
-            raise RuntimeError("Neither xclip nor xsel found. Install one of them.")
-        
-        # macOS
-        elif sys.platform == "darwin":
-            subprocess.run(
-                ["pbcopy"], 
-                input=text, 
-                text=True, 
-                check=True
-            )
-        
-        # Windows
-        elif sys.platform == "win32":
-            subprocess.run(
-                ["powershell", "-command", "Set-Clipboard", "-Value", text], 
-                input=text, 
-                text=True, 
-                check=True
-            )
-        
-        else:
-            raise RuntimeError("Unsupported platform.")
-    
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Failed to write clipboard: {e}")
+    def on_release(self, key):
+        if key in self.hotkey:
+            self.current_keys.discard(key)
+
+    def start_monitoring(self):
+        if not self.monitor_active:
+            self.listener = pynput.keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
+            self.listener.start()
+            self.monitor_active = True
+            print("Unpaste is running. Press Ctrl+C to stop.")
+            try:
+                while self.monitor_active:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                self.stop_monitoring()
+
+    def stop_monitoring(self):
+        if self.monitor_active and self.listener:
+            self.listener.stop()
+            self.monitor_active = False
+            print("Unpaste stopped.")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Unpaste: Strip formatting from clipboard text.")
-    parser.add_argument(
-        "--copy", 
-        action="store_true", 
-        help="Copy unformatted text back to clipboard"
-    )
-    parser.add_argument(
-        "--stdin", 
-        action="store_true", 
-        help="Read from stdin instead of clipboard"
-    )
+    parser = argparse.ArgumentParser(description="Unpaste: Strip formatting from clipboard text on paste.")
+    parser.add_argument("--start", action="store_true", help="Start monitoring clipboard")
+    parser.add_argument("--stop", action="store_true", help="Stop monitoring clipboard")
     args = parser.parse_args()
-    
-    try:
-        if args.stdin:
-            text = sys.stdin.read().strip()
-        else:
-            text = get_clipboard()
-        
-        if args.copy:
-            set_clipboard(text)
-            print("Unformatted text copied to clipboard.")
-        else:
-            print(text)
-    except RuntimeError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+
+    unpaste = Unpaste()
+    if args.start:
+        unpaste.start_monitoring()
+    elif args.stop:
+        unpaste.stop_monitoring()
+    else:
+        parser.print_help()
 
 
 if __name__ == "__main__":

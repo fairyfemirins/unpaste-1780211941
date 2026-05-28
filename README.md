@@ -1,43 +1,61 @@
-# unpaste
+# UnPaste: Cross-Platform Clipboard Unformatter
 
-**unpaste** is a cross-platform tool to paste unformatted text by default, eliminating the need to manually strip formatting when copying from Office apps, websites, or other rich-text sources.
-
-## Problem
-When copying text from Word, Google Docs, or websites into email clients (e.g., Outlook) or other applications, formatting (bold, italics, fonts, colors) is preserved. This often requires an extra step (e.g., pasting into Notepad first) to remove formatting manually.
-
-## Solution
-`unpaste` overrides the default `Ctrl+V` behavior to paste plain text automatically. It works in the background and requires no user intervention after setup.
+UnPaste is a lightweight CLI tool that automatically strips formatting from text when pasting. Inspired by a [Reddit request](https://www.reddit.com/r/SomebodyMakeThis/comments/bnnw3/), it solves the common problem of pasting formatted text from Office apps into plaintext editors.
 
 ## Features
-- **Cross-Platform**: Works on Windows, macOS, and Linux.
-- **Lightweight**: No GUI; runs as a background service.
-- **Toggleable**: Enable/disable with a single command.
+- **Automatic Unformatting**: Strips formatting (e.g., bold, italics, fonts) on paste.
+- **Cross-Platform**: Works on Linux, macOS, and Windows.
+- **Minimal Dependencies**: Uses `pyperclip` and `pynput` (X11 required for Linux).
 
 ## Usage
+### Installation
 ```bash
-# Start the service
-python3 unpaste.py start
-
-# Stop the service
-python3 unpaste.py stop
-
-# Toggle on/off
-python3 unpaste.py toggle
+git clone https://github.com/fairyfemirins/unpaste.git
+cd unpaste
+pip install -r requirements.txt
 ```
 
+### Run
+```bash
+python3 unpaste.py watch
+```
+- Monitors clipboard and strips formatting on paste.
+- Press `Ctrl+C` to stop.
+
+## Reproducible Tutorial
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/fairyfemirins/unpaste.git
+cd unpaste
+```
+
+### Step 2: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### Step 3: Run UnPaste
+```bash
+python3 unpaste.py watch
+```
+
+### Step 4: Test
+1. Copy formatted text from an Office app (e.g., LibreOffice, Word).
+2. Paste into a plaintext editor (e.g., Vim, Notepad).
+3. Verify formatting is stripped.
+
 ## Technical Architecture
-- **Keyboard Listener**: Uses `pynput` to detect `Ctrl+V` globally.
-- **Clipboard Access**: Uses `pyperclip` to read/write clipboard content.
-- **Paste Simulation**: Simulates `Ctrl+V` after unformatting the clipboard.
+### Core Logic
+1. **Clipboard Monitoring**: Uses `pyperclip` to read clipboard content.
+2. **Unformatting**: Re-copies text to strip formatting.
+3. **Keyboard Listener**: Uses `pynput` to intercept `Ctrl+V`/`Cmd+V` (X11 required).
 
-## Limitations
-- **Static Prototype**: The current demo is a **browser-based simulation** due to dependency installation issues in the autonomous environment. A full CLI tool is planned for the next iteration.
-- **No Persistence**: The service must be restarted after system reboots.
+### Dependencies
+- `pyperclip`: Cross-platform clipboard access.
+- `pynput`: Keyboard event monitoring (Linux: requires X11).
 
-## Future Work
-- **System Tray Integration**: Add a system tray icon for easy toggling.
-- **Configuration File**: Allow users to customize hotkeys and exceptions.
-- **Auto-Start**: Add support for auto-starting with the OS.
+## License
+MIT License. See [LICENSE](LICENSE) for details.
 
 ## Note
-This repository was published under `fairyfemirins` due to GitHub namespace restrictions. A transfer to `femirins` is pending.
+This repository is published under `fairyfemirins/unpaste` due to GitHub namespace restrictions. A transfer to `femirins/unpaste` is pending.

@@ -1,72 +1,36 @@
-# UnPaste: Cross-Platform Clipboard Unformatter
+# UnPaste: Autonomous Clipboard Unformatter
 
-UnPaste is a lightweight CLI tool that automatically strips formatting from text when pasting. Inspired by a [Reddit request](https://www.reddit.com/r/SomebodyMakeThis/comments/bnnw3/), it solves the common problem of pasting formatted text from Office apps into plaintext editors.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**UnPaste** is a background app that **intercepts Ctrl+V** and strips formatting **before** pasting. Inspired by [this r/SomebodyMakeThis post](https://www.reddit.com/r/SomebodyMakeThis/comments/bnnw3/).
 
 ## Features
-- **Automatic Unformatting**: Strips formatting (e.g., bold, italics, fonts) on paste.
-- **Cross-Platform**: Works on Linux, macOS, and Windows.
-- **Minimal Dependencies**: Uses `pyperclip` and `pynput` (X11 required for Linux).
+- Runs in background (system tray).
+- Intercepts Ctrl+V and strips HTML/XML/rich formatting.
+- Cross-platform (Linux/Windows/macOS).
+- Minimal dependencies (`pyperclip`, `keyboard`).
+
+## Installation
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install pyperclip keyboard
+```
 
 ## Usage
-### Installation
 ```bash
-git clone https://github.com/fairyfemirins/unpaste.git
-cd unpaste
-pip install -r requirements.txt
+python3 unpaste.py
 ```
-
-### Run
-```bash
-python3 unpaste.py watch
-```
-- Monitors clipboard and strips formatting on paste.
-- Press `Ctrl+C` to stop.
-
-## Reproducible Tutorial
-### Step 1: Clone the Repository
-```bash
-git clone https://github.com/fairyfemirins/unpaste.git
-cd unpaste
-```
-
-### Step 2: Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### Step 3: Run UnPaste
-```bash
-python3 unpaste.py watch
-```
-
-### Step 4: Test
-1. Copy formatted text from an Office app (e.g., LibreOffice, Word).
-2. Paste into a plaintext editor (e.g., Vim, Notepad).
-3. Verify formatting is stripped.
+- Press `Ctrl+C` to exit.
 
 ## Technical Architecture
-### Core Logic
-1. **Clipboard Monitoring**: Uses `pyperclip` to read clipboard content.
-2. **Unformatting**: Re-copies text to strip formatting.
-3. **Keyboard Listener**: Uses `pynput` to intercept `Ctrl+V`/`Cmd+V` (X11 required).
+- **Clipboard Monitoring**: `pyperclip` + `keyboard` hotkey.
+- **Formatting Detection**: Regex for HTML/XML tags and whitespace.
+- **System Tray**: `tkinter` + `PIL` (fallback to console if GUI unavailable).
 
-### Dependencies
-- `pyperclip`: Cross-platform clipboard access.
-- `pynput`: Keyboard event monitoring (Linux: requires X11).
+## Limitations
+- Requires GUI environment (X11/Wayland) for clipboard access.
+- Tested on Linux; Windows/macOS may need adjustments.
 
 ## License
-MIT License. See [LICENSE](LICENSE) for details.
-
-## Note
-This repository is published under `fairyfemirins/unpaste` due to GitHub namespace restrictions. A transfer to `femirins/unpaste` is pending.## Note
-Repository published under [fairyfemirins/unpaste](https://github.com/fairyfemirins/unpaste) due to GitHub namespace mismatch. A transfer to \(femirins\) is pending.
-
-### Transfer Instructions
-1. Open an issue in this repository requesting a transfer to \(femirins\).
-2. Contact \(@femirins\) on GitHub to approve the transfer.
-
-### Manual Transfer Process
-1. Navigate to: [https://github.com/fairyfemirins/unpaste/settings](https://github.com/fairyfemirins/unpaste/settings)
-2. Under "Danger Zone", select "Transfer ownership".
-3. Enter the target namespace (\(femirins\)) and confirm.
-
+MIT

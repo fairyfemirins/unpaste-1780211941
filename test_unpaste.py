@@ -1,54 +1,31 @@
 #!/usr/bin/env python3
 """
-Mock test for unpaste.py
+Unit tests for UnPaste.
+
+Run with: python3 -m unittest test_unpaste.py
 """
 
 import unittest
-from unittest.mock import patch, MagicMock
-import sys
-import os
+from unpaste import UnPaste
 
-# Add the project directory to the path
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-
-from unpaste import Unpaste
-
-
-class TestUnpaste(unittest.TestCase):
+class TestUnPaste(unittest.TestCase):
     def setUp(self):
-        self.unpaste = Unpaste()
+        self.unpaste = UnPaste()
 
-    @patch('pyperclip.paste')
-    @patch('pyperclip.copy')
-    def test_unpaste_logic(self, mock_copy, mock_paste):
-        # Simulate clipboard content
-        mock_paste.return_value = "Formatted Text"
-        
-        # Trigger _unpaste
-        self.unpaste._unpaste()
-        
-        # Verify clipboard was overwritten with plain text
-        mock_copy.assert_called_once_with("Formatted Text")
+    def test_is_formatted(self):
+        self.assertTrue(self.unpaste._is_formatted("<b>bold</b>"))
+        self.assertTrue(self.unpaste._is_formatted("line1\n\nline2"))
+        self.assertFalse(self.unpaste._is_formatted("plain text"))
 
-    @patch('pynput.keyboard.Listener')
-    def test_start_stop(self, mock_listener):
-        # Start the service
-        with patch.object(self.unpaste, 'start'):
-            self.unpaste.start()
-            mock_listener.assert_called_once()
-
-    def test_toggle(self):
-        # Initial state
-        self.assertTrue(self.unpaste.enabled)
-        
-        # Toggle off
-        self.unpaste.toggle()
-        self.assertFalse(self.unpaste.enabled)
-        
-        # Toggle on
-        self.unpaste.toggle()
-        self.assertTrue(self.unpaste.enabled)
-
+    def test_strip_formatting(self):
+        self.assertEqual(
+            self.unpaste._strip_formatting("<p>Hello<br>World</p>"),
+            "Hello World"
+        )
+        self.assertEqual(
+            self.unpaste._strip_formatting("line1\n\tline2"),
+            "line1 line2"
+        )
 
 if __name__ == "__main__":
     unittest.main()

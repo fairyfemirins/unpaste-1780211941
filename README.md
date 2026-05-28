@@ -58,4 +58,15 @@ python3 unpaste.py watch
 MIT License. See [LICENSE](LICENSE) for details.
 
 ## Note
-This repository is published under `fairyfemirins/unpaste` due to GitHub namespace restrictions. A transfer to `femirins/unpaste` is pending.
+This repository is published under `fairyfemirins/unpaste` due to GitHub namespace restrictions. A transfer to `femirins/unpaste` is pending.## Note
+Repository published under [fairyfemirins/unpaste](https://github.com/fairyfemirins/unpaste) due to GitHub namespace mismatch. A transfer to \(femirins\) is pending.
+
+### Transfer Instructions
+1. Open an issue in this repository requesting a transfer to \(femirins\).
+2. Contact \(@femirins\) on GitHub to approve the transfer.
+
+### Manual Transfer Process
+1. Navigate to: [https://github.com/fairyfemirins/unpaste/settings](https://github.com/fairyfemirins/unpaste/settings)
+2. Under "Danger Zone", select "Transfer ownership".
+3. Enter the target namespace (\(femirins\)) and confirm.
+

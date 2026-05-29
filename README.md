@@ -47,3 +47,7 @@ To request a transfer:
 1. Navigate to: [https://github.com/$AUTH_USER/unpaste/settings](https://github.com/$AUTH_USER/unpaste/settings)
 2. Under "Danger Zone", select "Transfer ownership".
 3. Enter the target namespace (`Femirins`) and confirm.
+## Repository URL
+
+Due to rebase conflicts, this repository is published at:
+[https://github.com/fairyfemirins/unpaste](https://github.com/fairyfemirins/unpaste)

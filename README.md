@@ -25,5 +25,21 @@ unpaste status
 **Input:** `<b>Hello</b> <i>world</i>!  This has   extra spaces.`
 **Output:** `Hello world! This has extra spaces.`
 
+## Repository URL
+
+Due to rebase conflicts, this repository is published at:
+[https://github.com/fairyfemirins/unpaste](https://github.com/fairyfemirins/unpaste)
+
+## Transfer Instructions
+
+To request a transfer:
+1. Open an issue in this repository.
+2. Contact `@femirins` on GitHub.
+
+### Manual Transfer Process
+1. Navigate to: [https://github.com/fairyfemirins/unpaste/settings](https://github.com/fairyfemirins/unpaste/settings)
+2. Under "Danger Zone", select "Transfer ownership".
+3. Enter the target namespace (`femirins`) and confirm.
+
 ## License
 MIT

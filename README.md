@@ -1,45 +1,41 @@
-# unpaste
+# UnPaste
 
-**unpaste** is a cross-platform CLI tool that strips formatting from clipboard text before pasting. It solves the common problem of unwanted formatting when copying text from web pages, documents, or applications.
+A CLI tool to strip formatting from pasted text, leaving only plain text. Useful for developers, writers, and anyone who frequently pastes from web pages, documents, or rich-text editors into terminals, code, or plain-text files.
+
+![UnPaste Demo](https://via.placeholder.com/600x150?text=UnPaste+Demo)
 
 ## Features
-- **Strip Formatting**: Removes HTML/XML tags and normalizes whitespace.
-- **Cross-Platform**: Works on Linux, macOS, and Windows.
-- **CLI-Friendly**: Simple commands for integration into workflows.
+- Strip HTML/XML tags, ANSI escape codes, and extra whitespace.
+- Cross-platform: Linux, macOS, Windows.
+- Supports stdin and clipboard input.
 
 ## Installation
+### Prerequisites
+- Python 3.6+
+- Linux: `sudo apt install xclip` (for clipboard support)
+
+### Install
 ```bash
-pip install --user click
+pip install --user pyperclip
+curl -o ~/bin/unpaste https://raw.githubusercontent.com/femirins/unpaste/main/unpaste.py
+chmod +x ~/bin/unpaste
 ```
 
 ## Usage
+### From Clipboard
 ```bash
-# Simulate pasting plain text (prints to stdout)
-unpaste paste
-
-# Check clipboard status (mock)
-unpaste status
+unpaste --clipboard
 ```
 
-## Example
-**Input:** `<b>Hello</b> <i>world</i>!  This has   extra spaces.`
-**Output:** `Hello world! This has extra spaces.`
+### From Stdin
+```bash
+echo "<b>Formatted</b> text" | unpaste --stdin
+```
 
-## Repository URL
-
-Due to rebase conflicts, this repository is published at:
-[https://github.com/fairyfemirins/unpaste](https://github.com/fairyfemirins/unpaste)
-
-## Transfer Instructions
-
-To request a transfer:
-1. Open an issue in this repository.
-2. Contact `@femirins` on GitHub.
-
-### Manual Transfer Process
-1. Navigate to: [https://github.com/fairyfemirins/unpaste/settings](https://github.com/fairyfemirins/unpaste/settings)
-2. Under "Danger Zone", select "Transfer ownership".
-3. Enter the target namespace (`femirins`) and confirm.
+## Technical Architecture
+- **Input**: Clipboard or stdin.
+- **Processing**: Regex-based stripping of HTML/XML tags, ANSI codes, and whitespace.
+- **Output**: Plain text to stdout.
 
 ## License
 MIT

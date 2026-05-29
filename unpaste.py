@@ -1,43 +1,49 @@
 #!/usr/bin/env python3
 """
-unpaste: Cross-platform CLI tool to strip formatting from clipboard text.
+UnPaste - A CLI tool to strip formatting from pasted text, leaving only plain text.
+
 Usage:
-  unpaste paste   # Simulate pasting plain text (prints to stdout)
-  unpaste status  # Check clipboard status (mock)
+  echo "<b>Formatted</b> text" | python3 unpaste.py --stdin
+  python3 unpaste.py --clipboard
 """
 
 import re
-import click
-from unittest.mock import patch
+import sys
+import argparse
+import pyperclip
 
 
-def strip_formatting(text: str) -> str:
-    """Remove HTML/XML tags and excessive whitespace from text."""
-    text = re.sub(r'<[^>]*>', '', text)  # Remove HTML tags
-    text = re.sub(r'\s+', ' ', text).strip()  # Normalize whitespace
+def unformat_text(text: str) -> str:
+    """Strip HTML tags, extra whitespace, and common formatting artifacts."""
+    # Remove HTML/XML tags
+    text = re.sub(r'<[^>]*>', '', text)
+    # Remove ANSI escape codes
+    text = re.sub(r'\x1b\[[0-9;]*m', '', text)
+    # Collapse multiple spaces/newlines
+    text = re.sub(r'\s+', ' ', text).strip()
     return text
 
 
-@click.group()
-def cli():
-    """unpaste: Strip formatting from clipboard text."""
-    pass
+def main():
+    parser = argparse.ArgumentParser(description='UnPaste - Strip formatting from text')
+    parser.add_argument('--stdin', action='store_true', help='Read from stdin instead of clipboard')
+    parser.add_argument('--clipboard', action='store_true', help='Read from clipboard (default)')
+    args = parser.parse_args()
 
+    if args.stdin:
+        text = sys.stdin.read().strip()
+    elif args.clipboard or not sys.stdin.isatty():
+        try:
+            text = pyperclip.paste()
+        except Exception as e:
+            print(f"Error accessing clipboard: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        parser.print_help()
+        sys.exit(1)
 
-@cli.command()
-def paste():
-    """Simulate pasting plain text (prints to stdout)."""
-    # Mock clipboard input
-    mock_clipboard = "<b>Hello</b> <i>world</i>!  This has   extra spaces."
-    plain_text = strip_formatting(mock_clipboard)
-    print(f"Stripped text: {plain_text}")
-
-
-@cli.command()
-def status():
-    """Check clipboard status (mock)."""
-    print("Mock: Clipboard contains 42 characters.")
+    print(unformat_text(text))
 
 
 if __name__ == "__main__":
-    cli()
+    main()

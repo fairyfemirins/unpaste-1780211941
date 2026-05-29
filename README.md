@@ -1,32 +1,36 @@
 # Unpaste
 
-**Unpaste** is a cross-platform CLI tool that strips formatting from clipboard text on paste. No more pasting bold/colored text from Word or Google Docs into your emails or notes!
+**Unpaste** is a CLI tool to strip formatting from clipboard text on paste (e.g., `Ctrl+V` → plaintext).
 
-## Features
-- **Automatic Formatting Removal**: Detects `Ctrl+V`/`Cmd+V` and strips formatting.
-- **Cross-Platform**: Works on Linux, macOS, and Windows.
-- **CLI Interface**: Start/stop monitoring with `unpaste --start`/`--stop`.
+## Problem
+When copying text from Office apps (LibreOffice, Word, Google Docs) into plaintext editors (Markdown, LaTeX, email), formatting (bold, italics, colors) is preserved. This requires manual cleanup (e.g., pasting into Notepad first).
 
-## Installation
-```bash
-pip install unpaste
-```
+## Solution
+Unpaste monitors the clipboard and automatically strips HTML/XML tags when `Ctrl+V` is pressed.
 
-## Usage
-```bash
-unpaste --start   # Start monitoring clipboard
-unpaste --stop    # Stop monitoring
-```
-
-## Static Prototype
-Try the [static demo](static/index.html) to see how it works:
-```bash
-python3 -m http.server 8000
-```
+## Usage (Static Prototype)
+1. **Copy formatted text** (e.g., from LibreOffice).
+2. **Run the static prototype** (no dependencies required):
+   ```bash
+   python3 unpaste.py "<b>Hello</b> <i>world</i>"
+   ```
+3. **Output**:
+   ```
+   Hello world
+   ```
 
 ## Limitations
-- **No Backend**: The static prototype demonstrates the concept but cannot modify the clipboard.
-- **Dependencies**: Requires `pyperclip` and `pynput` (installation may be blocked in PEP 668 environments).
+- **No Clipboard Monitoring**: This prototype requires manual input/output. For full functionality, install `pyperclip` and `pynput`:
+  ```bash
+  pip install --user pyperclip pynput
+  ```
+- **Cross-Platform**: Works on Linux/macOS/Windows (with dependencies).
+
+## Build from Source
+```bash
+git clone https://github.com/Femirins/unpaste.git
+cd unpaste
+```
 
 ## License
 MIT

@@ -1,0 +1,16 @@
+# unpaste: Regex Rules for Clipboard Processing
+# Format: rule_name:
+#   pattern: "regex_pattern"
+#   replacement: "replacement_string"
+
+markdown_links:
+  pattern: "(https?://[^\\s]+)"
+  replacement: "[\\1](\\1)"
+
+code_blocks:
+  pattern: "```([^`]+)```"
+  replacement: "```\\1```"
+
+email_to_md:
+  pattern: "([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})"
+  replacement: "<\\1>"

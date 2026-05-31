@@ -1,41 +1,35 @@
-# UnPaste
+# unpaste
 
-A CLI tool to strip formatting from pasted text, leaving only plain text. Useful for developers, writers, and anyone who frequently pastes from web pages, documents, or rich-text editors into terminals, code, or plain-text files.
-
-![UnPaste Demo](https://via.placeholder.com/600x150?text=UnPaste+Demo)
+**Autonomous Clipboard Utility** – Monitor, filter, and auto-format clipboard content with regex rules.
 
 ## Features
-- Strip HTML/XML tags, ANSI escape codes, and extra whitespace.
-- Cross-platform: Linux, macOS, Windows.
-- Supports stdin and clipboard input.
+- **Autonomous Monitoring**: Runs in the background, detects clipboard changes.
+- **Regex Filtering**: User-defined rules to auto-format or ignore content.
+- **Markdown Conversion**: Auto-converts URLs, code snippets, and text to markdown.
+- **History Logging**: Saves clipboard history to `~/.unpaste/history.json`.
 
 ## Installation
-### Prerequisites
-- Python 3.6+
-- Linux: `sudo apt install xclip` (for clipboard support)
-
-### Install
 ```bash
-pip install --user pyperclip
-curl -o ~/bin/unpaste https://raw.githubusercontent.com/femirins/unpaste/main/unpaste.py
-chmod +x ~/bin/unpaste
+pip install --user -r requirements.txt
 ```
 
 ## Usage
-### From Clipboard
+### Daemon Mode
 ```bash
-unpaste --clipboard
+python3 unpaste.py --daemon
 ```
 
-### From Stdin
-```bash
-echo "<b>Formatted</b> text" | unpaste --stdin
-```
-
-## Technical Architecture
-- **Input**: Clipboard or stdin.
-- **Processing**: Regex-based stripping of HTML/XML tags, ANSI codes, and whitespace.
-- **Output**: Plain text to stdout.
+### Custom Rules
+1. Create a `rules.yaml` file:
+   ```yaml
+   markdown_links:
+     pattern: "(https?://[^\\s]+)"
+     replacement: "[\\1](\\1)"
+   ```
+2. Run with custom rules:
+   ```bash
+   python3 unpaste.py --rules "rules.yaml" --daemon
+   ```
 
 ## License
 MIT
